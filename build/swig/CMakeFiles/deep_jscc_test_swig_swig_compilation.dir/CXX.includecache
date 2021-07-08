@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/xaviernx/gr-deep_jscc_test/swig/deep_jscc_test_swig.i
+gnuradio.i
+/home/xaviernx/gr-deep_jscc_test/swig/gnuradio.i
+deep_jscc_test_swig_doc.i
+/home/xaviernx/gr-deep_jscc_test/swig/deep_jscc_test_swig_doc.i
+deep_jscc_test/ofdm_jscc_equalizer_single_tap.h
+/home/xaviernx/gr-deep_jscc_test/swig/deep_jscc_test/ofdm_jscc_equalizer_single_tap.h
+deep_jscc_test/packet_header_jscc.h
+/home/xaviernx/gr-deep_jscc_test/swig/deep_jscc_test/packet_header_jscc.h
+gnuradio/digital/ofdm_equalizer_base.h
+/home/xaviernx/gr-deep_jscc_test/swig/gnuradio/digital/ofdm_equalizer_base.h
+deep_jscc_test/ofdm_jscc_equalizer_single_tap.h
+/home/xaviernx/gr-deep_jscc_test/swig/deep_jscc_test/ofdm_jscc_equalizer_single_tap.h
+gnuradio/digital/packet_header_default.h
+/home/xaviernx/gr-deep_jscc_test/swig/gnuradio/digital/packet_header_default.h
+deep_jscc_test/packet_header_jscc.h
+/home/xaviernx/gr-deep_jscc_test/swig/deep_jscc_test/packet_header_jscc.h
+

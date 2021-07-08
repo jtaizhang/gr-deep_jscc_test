@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="dir_fb9202742ac7553c27529c15a800560e" kind="dir">
+    <compoundname>deep_jscc_test</compoundname>
+    <innerfile refid="api_8h">api.h</innerfile>
+    <innerfile refid="ofdm__jscc__equalizer__single__tap_8h">ofdm_jscc_equalizer_single_tap.h</innerfile>
+    <innerfile refid="packet__header__jscc_8h">packet_header_jscc.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/"/>
+  </compounddef>
+</doxygen>

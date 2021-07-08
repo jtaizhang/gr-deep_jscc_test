@@ -1,0 +1,443 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="classgr_1_1deep__jscc__test_1_1packet__header__jscc" kind="class" language="C++" prot="public">
+    <compoundname>gr::deep_jscc_test::packet_header_jscc</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">packet_header_default</basecompoundref>
+    <includes refid="packet__header__jscc_8h" local="no">packet_header_jscc.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1a6c46f3ebcd0bfdccc99d30f255b196c2" prot="public" static="no">
+        <type>boost::shared_ptr&lt; packet_header_default &gt;</type>
+        <definition>typedef boost::shared_ptr&lt;packet_header_default&gt; gr::deep_jscc_test::packet_header_jscc::sptr</definition>
+        <argsstring></argsstring>
+        <name>sptr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" line="38" column="1" bodyfile="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" bodystart="38" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1a63014e436a0fa13f466431f72e68cae7" prot="protected" static="no" mutable="no">
+        <type>pmt::pmt_t</type>
+        <definition>pmt::pmt_t gr::deep_jscc_test::packet_header_jscc::d_frame_len_tag_key</definition>
+        <argsstring></argsstring>
+        <name>d_frame_len_tag_key</name>
+        <briefdescription>
+<para>Tag key of the additional frame length tag. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" line="71" column="1" bodyfile="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1a1cf8457516ecb66b3f3b4a4190352170" prot="protected" static="no" mutable="no">
+        <type>const std::vector&lt; std::vector&lt; int &gt; &gt;</type>
+        <definition>const std::vector&lt;std::vector&lt;int&gt; &gt; gr::deep_jscc_test::packet_header_jscc::d_occupied_carriers</definition>
+        <argsstring></argsstring>
+        <name>d_occupied_carriers</name>
+        <briefdescription>
+<para>Which carriers/symbols carry data. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" line="72" column="1" bodyfile="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1a3cf15920077726e94361deb2e035d673" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int gr::deep_jscc_test::packet_header_jscc::d_bits_per_payload_sym</definition>
+        <argsstring></argsstring>
+        <name>d_bits_per_payload_sym</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" line="73" column="1" bodyfile="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1aa6bf71d6ddf2b2b2dda6bb4d1fff65e8" prot="protected" static="no" mutable="no">
+        <type>std::vector&lt; unsigned char &gt;</type>
+        <definition>std::vector&lt;unsigned char&gt; gr::deep_jscc_test::packet_header_jscc::d_scramble_mask</definition>
+        <argsstring></argsstring>
+        <name>d_scramble_mask</name>
+        <briefdescription>
+<para>Bits are xor&apos;d with this before tx&apos;ing. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" line="74" column="1" bodyfile="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1aa1caaeaa32f238cb12dd5a7d2bbcab4c" prot="protected" static="no" mutable="no">
+        <type>long</type>
+        <definition>long gr::deep_jscc_test::packet_header_jscc::Md_header_len</definition>
+        <argsstring></argsstring>
+        <name>Md_header_len</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" line="76" column="1" bodyfile="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1ae7b6a0d216d886148243962f2112ce4d" prot="protected" static="no" mutable="no">
+        <type>pmt::pmt_t</type>
+        <definition>pmt::pmt_t gr::deep_jscc_test::packet_header_jscc::Md_len_tag_key</definition>
+        <argsstring></argsstring>
+        <name>Md_len_tag_key</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" line="77" column="1" bodyfile="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1a663c6db6a0eefe7378a13efe49fb1ed7" prot="protected" static="no" mutable="no">
+        <type>pmt::pmt_t</type>
+        <definition>pmt::pmt_t gr::deep_jscc_test::packet_header_jscc::Md_num_tag_key</definition>
+        <argsstring></argsstring>
+        <name>Md_num_tag_key</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" line="78" column="1" bodyfile="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1a9c41fc7a1d3bb4d4167f05b10ea0be66" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int gr::deep_jscc_test::packet_header_jscc::Md_bits_per_byte</definition>
+        <argsstring></argsstring>
+        <name>Md_bits_per_byte</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" line="79" column="1" bodyfile="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1ae9fcfc1fa3c1f3ccf0378b908954ce4f" prot="protected" static="no" mutable="no">
+        <type>unsigned</type>
+        <definition>unsigned gr::deep_jscc_test::packet_header_jscc::Md_header_number</definition>
+        <argsstring></argsstring>
+        <name>Md_header_number</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" line="80" column="1" bodyfile="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1a754587cf61c64d19e2c20c970284d7ff" prot="protected" static="no" mutable="no">
+        <type>unsigned</type>
+        <definition>unsigned gr::deep_jscc_test::packet_header_jscc::Md_mask</definition>
+        <argsstring></argsstring>
+        <name>Md_mask</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" line="81" column="1" bodyfile="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" bodystart="81" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1a8bc5f723fee9a7dad34ff53314e01657" prot="protected" static="no" mutable="no">
+        <type>boost::crc_optimal&lt; 8, 0x07, 0xFF, 0x00, false, false &gt;</type>
+        <definition>boost::crc_optimal&lt;8, 0x07, 0xFF, 0x00, false, false&gt; gr::deep_jscc_test::packet_header_jscc::Md_crc_impl</definition>
+        <argsstring></argsstring>
+        <name>Md_crc_impl</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" line="82" column="1" bodyfile="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1addf216b9790d5fa0b48076b15e7f6f29" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>gr::deep_jscc_test::packet_header_jscc::packet_header_jscc</definition>
+        <argsstring>(const std::vector&lt; std::vector&lt; int &gt;&gt; &amp;occupied_carriers, int n_syms, const std::string &amp;len_tag_key, const std::string &amp;frame_len_tag_key, const std::string &amp;num_tag_key, int bits_per_header_sym, int bits_per_payload_sym, bool scramble_header)</argsstring>
+        <name>packet_header_jscc</name>
+        <param>
+          <type>const std::vector&lt; std::vector&lt; int &gt;&gt; &amp;</type>
+          <declname>occupied_carriers</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n_syms</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>len_tag_key</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>frame_len_tag_key</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>num_tag_key</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>bits_per_header_sym</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>bits_per_payload_sym</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>scramble_header</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" line="40" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1a2839d71cc6320cd39487218c4abc3ef4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>gr::deep_jscc_test::packet_header_jscc::~packet_header_jscc</definition>
+        <argsstring>()</argsstring>
+        <name>~packet_header_jscc</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" line="49" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1ad928b5f1aa867b31f1aac8b061a7c74d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool gr::deep_jscc_test::packet_header_jscc::header_formatter</definition>
+        <argsstring>(long packet_len, unsigned char *out, const std::vector&lt; tag_t &gt; &amp;tags)</argsstring>
+        <name>header_formatter</name>
+        <param>
+          <type>long</type>
+          <declname>packet_len</declname>
+        </param>
+        <param>
+          <type>unsigned char *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; tag_t &gt; &amp;</type>
+          <declname>tags</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" line="51" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1a2de45737e3363c627b9a87ff3a65dbe6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool gr::deep_jscc_test::packet_header_jscc::header_parser</definition>
+        <argsstring>(const unsigned char *header, std::vector&lt; tag_t &gt; &amp;tags)</argsstring>
+        <name>header_parser</name>
+        <param>
+          <type>const unsigned char *</type>
+          <declname>header</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; tag_t &gt; &amp;</type>
+          <declname>tags</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" line="56" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1a107e39c808853aec1eca17067988814a" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1a6c46f3ebcd0bfdccc99d30f255b196c2" kindref="member">sptr</ref></type>
+        <definition>static sptr gr::deep_jscc_test::packet_header_jscc::make</definition>
+        <argsstring>(const std::vector&lt; std::vector&lt; int &gt;&gt; &amp;occupied_carriers, int n_syms, const std::string &amp;len_tag_key=&quot;packet_len&quot;, const std::string &amp;frame_len_tag_key=&quot;frame_len&quot;, const std::string &amp;num_tag_key=&quot;packet_num&quot;, int bits_per_header_sym=1, int bits_per_payload_sym=1, bool scramble_header=false)</argsstring>
+        <name>make</name>
+        <param>
+          <type>const std::vector&lt; std::vector&lt; int &gt;&gt; &amp;</type>
+          <declname>occupied_carriers</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n_syms</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>len_tag_key</declname>
+          <defval>&quot;packet_len&quot;</defval>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>frame_len_tag_key</declname>
+          <defval>&quot;frame_len&quot;</defval>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>num_tag_key</declname>
+          <defval>&quot;packet_num&quot;</defval>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>bits_per_header_sym</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>bits_per_payload_sym</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>scramble_header</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" line="60" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1af7b6bae221c4dcd9b9909dbde772b0d6" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void gr::deep_jscc_test::packet_header_jscc::insert_into_header_buffer</definition>
+        <argsstring>(unsigned char *out, int &amp;currentOffset, unsigned value_to_insert, int number_of_bits_to_copy)</argsstring>
+        <name>insert_into_header_buffer</name>
+        <param>
+          <type>unsigned char *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <declname>currentOffset</declname>
+        </param>
+        <param>
+          <type>unsigned</type>
+          <declname>value_to_insert</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>number_of_bits_to_copy</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" line="84" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1a7158a0728ed69872a48e5bc591762ae1" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned</type>
+        <definition>unsigned gr::deep_jscc_test::packet_header_jscc::extract_from_header_buffer</definition>
+        <argsstring>(std::vector&lt; unsigned char &gt; &amp;in, int &amp;currentOffset, int size_of_field)</argsstring>
+        <name>extract_from_header_buffer</name>
+        <param>
+          <type>std::vector&lt; unsigned char &gt; &amp;</type>
+          <declname>in</declname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <declname>currentOffset</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>size_of_field</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" line="85" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>&lt;+description+&gt; </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="5">
+        <label>gr::digital::packet_header_default</label>
+      </node>
+      <node id="4">
+        <label>gr::deep_jscc_test::packet_header_jscc</label>
+        <link refid="classgr_1_1deep__jscc__test_1_1packet__header__jscc"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7">
+        <label>gr::digital::packet_header_default</label>
+      </node>
+      <node id="6">
+        <label>gr::deep_jscc_test::packet_header_jscc</label>
+        <link refid="classgr_1_1deep__jscc__test_1_1packet__header__jscc"/>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>d_occupied_carriers</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>d_scramble_mask</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>std::vector&lt; std::vector&lt; int &gt; &gt;</label>
+      </node>
+      <node id="9">
+        <label>std::vector&lt; unsigned char &gt;</label>
+      </node>
+    </collaborationgraph>
+    <location file="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" line="36" column="1" bodyfile="/home/xaviernx/gr-deep_jscc_test/include/deep_jscc_test/packet_header_jscc.h" bodystart="35" bodyend="87"/>
+    <listofallmembers>
+      <member refid="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1a3cf15920077726e94361deb2e035d673" prot="protected" virt="non-virtual"><scope>gr::deep_jscc_test::packet_header_jscc</scope><name>d_bits_per_payload_sym</name></member>
+      <member refid="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1a63014e436a0fa13f466431f72e68cae7" prot="protected" virt="non-virtual"><scope>gr::deep_jscc_test::packet_header_jscc</scope><name>d_frame_len_tag_key</name></member>
+      <member refid="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1a1cf8457516ecb66b3f3b4a4190352170" prot="protected" virt="non-virtual"><scope>gr::deep_jscc_test::packet_header_jscc</scope><name>d_occupied_carriers</name></member>
+      <member refid="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1aa6bf71d6ddf2b2b2dda6bb4d1fff65e8" prot="protected" virt="non-virtual"><scope>gr::deep_jscc_test::packet_header_jscc</scope><name>d_scramble_mask</name></member>
+      <member refid="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1a7158a0728ed69872a48e5bc591762ae1" prot="protected" virt="non-virtual"><scope>gr::deep_jscc_test::packet_header_jscc</scope><name>extract_from_header_buffer</name></member>
+      <member refid="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1ad928b5f1aa867b31f1aac8b061a7c74d" prot="public" virt="non-virtual"><scope>gr::deep_jscc_test::packet_header_jscc</scope><name>header_formatter</name></member>
+      <member refid="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1a2de45737e3363c627b9a87ff3a65dbe6" prot="public" virt="non-virtual"><scope>gr::deep_jscc_test::packet_header_jscc</scope><name>header_parser</name></member>
+      <member refid="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1af7b6bae221c4dcd9b9909dbde772b0d6" prot="protected" virt="non-virtual"><scope>gr::deep_jscc_test::packet_header_jscc</scope><name>insert_into_header_buffer</name></member>
+      <member refid="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1a107e39c808853aec1eca17067988814a" prot="public" virt="non-virtual"><scope>gr::deep_jscc_test::packet_header_jscc</scope><name>make</name></member>
+      <member refid="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1a9c41fc7a1d3bb4d4167f05b10ea0be66" prot="protected" virt="non-virtual"><scope>gr::deep_jscc_test::packet_header_jscc</scope><name>Md_bits_per_byte</name></member>
+      <member refid="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1a8bc5f723fee9a7dad34ff53314e01657" prot="protected" virt="non-virtual"><scope>gr::deep_jscc_test::packet_header_jscc</scope><name>Md_crc_impl</name></member>
+      <member refid="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1aa1caaeaa32f238cb12dd5a7d2bbcab4c" prot="protected" virt="non-virtual"><scope>gr::deep_jscc_test::packet_header_jscc</scope><name>Md_header_len</name></member>
+      <member refid="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1ae9fcfc1fa3c1f3ccf0378b908954ce4f" prot="protected" virt="non-virtual"><scope>gr::deep_jscc_test::packet_header_jscc</scope><name>Md_header_number</name></member>
+      <member refid="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1ae7b6a0d216d886148243962f2112ce4d" prot="protected" virt="non-virtual"><scope>gr::deep_jscc_test::packet_header_jscc</scope><name>Md_len_tag_key</name></member>
+      <member refid="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1a754587cf61c64d19e2c20c970284d7ff" prot="protected" virt="non-virtual"><scope>gr::deep_jscc_test::packet_header_jscc</scope><name>Md_mask</name></member>
+      <member refid="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1a663c6db6a0eefe7378a13efe49fb1ed7" prot="protected" virt="non-virtual"><scope>gr::deep_jscc_test::packet_header_jscc</scope><name>Md_num_tag_key</name></member>
+      <member refid="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1addf216b9790d5fa0b48076b15e7f6f29" prot="public" virt="non-virtual"><scope>gr::deep_jscc_test::packet_header_jscc</scope><name>packet_header_jscc</name></member>
+      <member refid="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1a6c46f3ebcd0bfdccc99d30f255b196c2" prot="public" virt="non-virtual"><scope>gr::deep_jscc_test::packet_header_jscc</scope><name>sptr</name></member>
+      <member refid="classgr_1_1deep__jscc__test_1_1packet__header__jscc_1a2839d71cc6320cd39487218c4abc3ef4" prot="public" virt="non-virtual"><scope>gr::deep_jscc_test::packet_header_jscc</scope><name>~packet_header_jscc</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

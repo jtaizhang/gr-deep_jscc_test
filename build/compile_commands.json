@@ -1,0 +1,22 @@
+[
+{
+  "directory": "/home/xaviernx/gr-deep_jscc_test/build/lib",
+  "command": "/usr/bin/c++  -DFFTW3F_THREADS -DGR_CTRLPORT -Dgnuradio_deep_jscc_test_EXPORTS -I/home/xaviernx/gr-deep_jscc_test/lib/../include -isystem /usr/local/include  -O3 -DNDEBUG -fPIC   -fvisibility=hidden -std=gnu++11 -o CMakeFiles/gnuradio-deep_jscc_test.dir/ofdm_jscc_equalizer_single_tap.cc.o -c /home/xaviernx/gr-deep_jscc_test/lib/ofdm_jscc_equalizer_single_tap.cc",
+  "file": "/home/xaviernx/gr-deep_jscc_test/lib/ofdm_jscc_equalizer_single_tap.cc"
+},
+{
+  "directory": "/home/xaviernx/gr-deep_jscc_test/build/lib",
+  "command": "/usr/bin/c++  -DFFTW3F_THREADS -DGR_CTRLPORT -Dgnuradio_deep_jscc_test_EXPORTS -I/home/xaviernx/gr-deep_jscc_test/lib/../include -isystem /usr/local/include  -O3 -DNDEBUG -fPIC   -fvisibility=hidden -std=gnu++11 -o CMakeFiles/gnuradio-deep_jscc_test.dir/packet_header_jscc.cc.o -c /home/xaviernx/gr-deep_jscc_test/lib/packet_header_jscc.cc",
+  "file": "/home/xaviernx/gr-deep_jscc_test/lib/packet_header_jscc.cc"
+},
+{
+  "directory": "/home/xaviernx/gr-deep_jscc_test/build/swig",
+  "command": "/usr/bin/c++    -O3 -DNDEBUG   -fvisibility=hidden -std=gnu++11 -o CMakeFiles/_deep_jscc_test_swig_doc_tag.dir/_deep_jscc_test_swig_doc_tag.cpp.o -c /home/xaviernx/gr-deep_jscc_test/build/swig/_deep_jscc_test_swig_doc_tag.cpp",
+  "file": "/home/xaviernx/gr-deep_jscc_test/build/swig/_deep_jscc_test_swig_doc_tag.cpp"
+},
+{
+  "directory": "/home/xaviernx/gr-deep_jscc_test/build/swig",
+  "command": "/usr/bin/c++  -DFFTW3F_THREADS -DGR_CTRLPORT -Ddeep_jscc_test_swig_EXPORTS -I/home/xaviernx/gr-deep_jscc_test/build/swig -I/home/xaviernx/gr-deep_jscc_test/swig -I/usr/local/include/gnuradio/swig -isystem /usr/include/python3.6m -isystem /usr/local/include -I/home/xaviernx/gr-deep_jscc_test/lib/../include  -O3 -DNDEBUG -fPIC   -fvisibility=hidden -std=gnu++11 -o CMakeFiles/deep_jscc_test_swig.dir/CMakeFiles/deep_jscc_test_swig.dir/deep_jscc_test_swigPYTHON_wrap.cxx.o -c /home/xaviernx/gr-deep_jscc_test/build/swig/CMakeFiles/deep_jscc_test_swig.dir/deep_jscc_test_swigPYTHON_wrap.cxx",
+  "file": "/home/xaviernx/gr-deep_jscc_test/build/swig/CMakeFiles/deep_jscc_test_swig.dir/deep_jscc_test_swigPYTHON_wrap.cxx"
+}
+]

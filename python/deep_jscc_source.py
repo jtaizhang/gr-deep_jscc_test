@@ -179,34 +179,34 @@ class deep_jscc_source(gr.sync_block):
             in_sig=None,
             out_sig=[np.complex64, np.uint8])
 
-        self.snr = np.array([[snr]])
-        self.packet_len = packet_len
+        self.snr = np.array([[snr]])                                 # channel snr, should be estimated
+        self.packet_len = packet_len                                 # packet length = 48
 
-        self.video_file = cv2.VideoCapture(video_file)
-        models = self.get_model(model_dir)
+        self.video_file = cv2.VideoCapture(video_file)               # load video file
+        models = self.get_model(model_dir)                           # load models
         self.key_encoder, self.interp_encoder, \
-            self.bw_allocator, self.ssf_net = self.get_engine(models)
+            self.bw_allocator, self.ssf_net = self.get_engine(models) 
 
         self.gop_size = 5
         self.ss_sigma = 0.01
         self.ss_levels = 5
         self.bw_size = 20
-        self.n_frames = self.video_file.get(cv2.CAP_PROP_FRAME_COUNT)
-        self.n_gops = (self.n_frames - 1) // (self.gop_size - 1)
+        self.n_frames = self.video_file.get(cv2.CAP_PROP_FRAME_COUNT) # number of frames of video
+        self.n_gops = (self.n_frames - 1) // (self.gop_size - 1)      # number of gops, = number of frame-1 / 4
         self.first = True
         self.get_bw_set()
 
-        self.gop_idx = 0
-        self.pair_idx = 0
-        self.running_idx = 0
-        self.curr_codeword = 0
-        self.curr_codes = None
-        self.bw_per_gop = 240 * 15 * 20 // 2
-        self.total_bw = self.bw_per_gop * (self.n_gops + 1)
+        self.gop_idx = 0                                        # gop index
+        self.pair_idx = 0                                       # pair index
+        self.running_idx = 0                                    # 
+        self.curr_codeword = 0                                  # 
+        self.curr_codes = None                                  # 
+        self.bw_per_gop = 240 * 15 * 20 // 2                    # divided by 2 because real part + imaginary part of 
+        self.total_bw = self.bw_per_gop * (self.n_gops + 1)     # total bandwidth = individual bandwidth * number of gops
 
     def get_bw_set(self):
-        bw_set = [1] * self.bw_size + [0] * (self.gop_size - 2)
-        bw_set = perms_without_reps(bw_set)
+        bw_set = [1] * self.bw_size + [0] * (self.gop_size - 2)             # 
+        bw_set = perms_without_reps(bw_set)                                 # 
         bw_set = [split_list_by_val(action, 0) for action in bw_set]
         self.bw_set = [[sum(bw) for bw in action] for action in bw_set]
 
@@ -220,7 +220,7 @@ class deep_jscc_source(gr.sync_block):
                     bw_allocator_engine, ssf_engine)
         return engines
 
-    def get_model(self, model_dir):
+    def get_model(self, model_dir):                                  # load model
         key_encoder = onnx.load(model_dir + '/key_encoder_simp.onnx')
         interp_encoder = onnx.load(model_dir + '/interp_encoder_simp.onnx')
         bw_allocator = onnx.load(model_dir + '/bw_allocator_simp.onnx')
@@ -235,10 +235,10 @@ class deep_jscc_source(gr.sync_block):
             self.first = False
             init_frame = gop[0]
             init_code = self.key_encoder((init_frame, self.snr))[0]
-            codes[0] = init_code.reshape(-1, 2)
+            codes[0] = init_code.reshape(-1, 2)                         # Because real+img?
             code_lengths[0] = init_code.size // 2
         else:
-            codes[0] = self.prev_last.reshape(-1, 2)
+            codes[0] = self.prev_last.reshape(-1, 2)                    # what is prev_last
             code_lengths[0] = self.prev_last.size // 2
 
         interp_inputs = [None] * self.gop_size
@@ -246,31 +246,31 @@ class deep_jscc_source(gr.sync_block):
         interp_inputs[-1] = gop[-1]
 
         for pred_idx in [2, 1, 3]:
-            if pred_idx == 2:
-                dist = 2
-            else:
-                dist = 1
+            if pred_idx == 2:                   # if the middle(no. 3)
+                dist = 2                        # the distance between midlle and key is 2
+            else:                               # if the no.1 / 2
+                dist = 1                        # the distance is 1
 
             vol1 = generate_ss_volume(torch.from_numpy(gop[pred_idx - dist]),
                                         self.ss_sigma, 3, self.ss_levels)
             vol2 = generate_ss_volume(torch.from_numpy(gop[pred_idx + dist]),
                                         self.ss_sigma, 3, self.ss_levels)
-            flow1 = self.ssf_net(np.concatenate((gop[pred_idx], gop[pred_idx - dist]), axis=1))
-            flow2 = self.ssf_net(np.concatenate((gop[pred_idx], gop[pred_idx + dist]), axis=1))
+            flow1 = self.ssf_net(np.concatenate((gop[pred_idx], gop[pred_idx - dist]), axis=1))		# flow1 = [predict, 1st]
+            flow2 = self.ssf_net(np.concatenate((gop[pred_idx], gop[pred_idx + dist]), axis=1))		# flow2 = [predict, 5th]
 
             w1 = ss_warp(vol1, torch.from_numpy(flow1).unsqueeze(2)).numpy()
             w2 = ss_warp(vol2, torch.from_numpy(flow2).unsqueeze(2)).numpy()
             r1 = gop[pred_idx] - w1
             r2 = gop[pred_idx] - w2
             interp_input = np.concatenate([gop[pred_idx], w1, w2, r1, r2, flow1, flow2], axis=1)
-            interp_inputs[pred_idx] = interp_input
+            interp_inputs[pred_idx] = interp_input # interp_inputs = [gop0, information1, information2, information3,]
 
         bw_state = np.concatenate(interp_inputs, axis=1)
         bw_policy = self.bw_allocator((bw_state, self.snr))[0]
-        bw_alloc = np.argmax(bw_policy, axis=1)
+        bw_alloc = np.argmax(bw_policy, axis=1)			# allocate the bw with highest ..?
         bw_alloc = self.bw_set[bw_alloc[0, 0]] * self.bw_size
 
-        last = interp_inputs[-1]
+        last = interp_inputs[-1]				# =gop[-1]
         last_code = self.key_encoder((last, self.snr))[0]
         last_code = last_code[:, bw_alloc[0]:]
         codes[-1] = last_code.reshape(-1, 2)
@@ -298,20 +298,22 @@ class deep_jscc_source(gr.sync_block):
         for _ in range(5):
             flag, frame = self.video_file.read()
             assert flag
-            frame = np.swapaxes(frame, 0, 2)
-            frame = np.swapaxes(frame, 1, 2)
-            frame = np.expand_dims(frame, axis=0) / 255.0
+            frame = np.swapaxes(frame, 0, 2)			# [3, height, width]?
+            frame = np.swapaxes(frame, 1, 2)			# [3, width, height]?
+            frame = np.expand_dims(frame, axis=0) / 255.0	# normalisation to [0,1]
             frames.append(frame)
         return frames
 
     def work(self, input_items, output_items):
         payload_out = output_items[0]
         byte_out = output_items[1]
+        frame_lengths = pmt.make_s32vector(4, 0)
+        curr_code_lengths = []
 
         for payload_idx in range(len(payload_out)):
             if self.curr_codes is None:
                 curr_gop = self.get_gop(self.gop_idx)
-                self.curr_codes, self.curr_code_lengths = self.forward(curr_gop)
+                self.curr_codes, self.curr_code_lengths = self.forward(curr_gop) # gather a new gop
 
             if self.pair_idx == (self.curr_code_lengths[self.curr_codeword] - 1):
                 self.curr_codeword += 1
@@ -329,24 +331,38 @@ class deep_jscc_source(gr.sync_block):
             else:
                 new_gop = False
 
-            if self.running_idx % self.packet_len == 0:
-                self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('packet_len'), pmt.from_long(self.packet_len))
-                self.add_item_tag(1, payload_idx + self.nitems_written(1), pmt.intern('packet_len'), pmt.from_long(self.packet_len))
+	    # proportion of frames k1:k2:k3:k4 = lengths[1]:lengths[2]:length[3]:length[4]
+        for frame_index in range(self.gop_size - 1):	                                        # -1 because the first frame is not transmitted
+            pmt.s32vector_set(frame_lengths, frame_index, curr_code_lengths[frame_index + 1])	# +1 to map from [0:3] to [1:4]
 
-                self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('new_gop'), pmt.from_bool(new_gop)) 
-                self.add_item_tag(1, payload_idx + self.nitems_written(1), pmt.intern('new_gop'), pmt.from_bool(new_gop))
+	
+        if self.running_idx % self.packet_len == 0:
+		# add_item_tag(which_output, abs_offset, key, value)
+            self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('packet_len'), pmt.from_long(self.packet_len))
+            self.add_item_tag(1, payload_idx + self.nitems_written(1), pmt.intern('packet_len'), pmt.from_long(self.packet_len))
 
-                self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('new_codeword'), pmt.from_bool(new_codeword)) 
-                self.add_item_tag(1, payload_idx + self.nitems_written(1), pmt.intern('new_codeword'), pmt.from_bool(new_codeword))
+            self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('new_gop'), pmt.from_bool(new_gop)) 
+            self.add_item_tag(1, payload_idx + self.nitems_written(1), pmt.intern('new_gop'), pmt.from_bool(new_gop))
+            
+            self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('frame_lengths'), frame_lengths)
+            self.add_item_tag(1, payload_idx + self.nitems_written(0), pmt.intern('frame_lengths'), frame_lengths)
 
+            # self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('new_codeword'), pmt.from_bool(new_codeword)) 
+            # self.add_item_tag(1, payload_idx + self.nitems_written(1), pmt.intern('new_codeword'), pmt.from_bool(new_codeword))
 
-            symbol = self.curr_codes[self.curr_codeword][self.pair_idx, 0] + self.curr_codes[self.curr_codeword][self.pair_idx, 1]*1j
-            payload_out[payload_idx] = symbol
-            byte_out[payload_idx] = np.uint8(7)
+	    # codes.size = [;,2]?
+        symbol = self.curr_codes[self.curr_codeword][self.pair_idx, 0] + self.curr_codes[self.curr_codeword][self.pair_idx, 1]*1j
+        payload_out[payload_idx] = symbol
+        byte_out[payload_idx] = np.uint8(7)
 
-            self.pair_idx += 1
-            self.running_idx += 1
+        self.pair_idx += 1
+        self.running_idx += 1
 
         
         return len(output_items[0])
 
+if __name__ == '__main__':
+    x = np.zeros(1)
+    source = deep_jscc_source('/home/xaviernx/Downloads/UCF-101/ApplyEyeMakeup/v_ApplyEyeMakeup_g01_c01.avi',
+                            '/home/xaviernx/onnx_output', 5, 96)
+    source.work(None, [[None]*100, [None]*100])

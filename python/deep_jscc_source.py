@@ -179,7 +179,7 @@ class deep_jscc_source(gr.sync_block):
             in_sig=None,
             out_sig=[np.complex64, np.uint8])
 
-        # snr = np.float32(snr)
+        snr = np.float32(snr)
         self.snr = np.array([[snr]])             		     # channel snr, should be estimated
         self.packet_len = packet_len                                 # packet length = 48
 
@@ -270,8 +270,9 @@ class deep_jscc_source(gr.sync_block):
 
         bw_state = np.concatenate(interp_inputs, axis=1) # shape = (1, 3+21+21+21+3, 240, 320)
         bw_policy = self.bw_allocator.run((bw_state, self.snr))[0]
-        bw_alloc = np.argmax(bw_policy) # , axis=0)			# allocate the bw with highest ..?
-        bw_alloc = self.bw_set[bw_alloc[0, 0]] * self.bw_size
+        # bw_alloc = np.argmax(bw_policy) # , axis=0)			# allocate the bw with highest ..?
+        # bw_alloc = self.bw_set[bw_alloc[0, 0]] * self.bw_size
+        bw_alloc = self.bw_set[bw_policy[0]] * self.bw_size
 
         last = interp_inputs[-1]				# =gop[-1]
         last_code = self.key_encoder.run((last, self.snr))[0]
@@ -373,6 +374,6 @@ class deep_jscc_source(gr.sync_block):
 
 if __name__ == '__main__':
     x = np.zeros(1)
-    source = deep_jscc_source('/home/xaviernx/Downloads/UCF-101/ApplyEyeMakeup/v_ApplyEyeMakeup_g01_c01.avi',
+    source = deep_jscc_source('/home/xaviernx/Downloads/UCF-101/HulaHoop/v_HulaHoop_g13_c03.avi',
                             '/home/xaviernx/onnx_output', 0.35 , 96)
     source.work(None, [[None]*100, [None]*100])

@@ -179,7 +179,8 @@ class deep_jscc_source(gr.sync_block):
             in_sig=None,
             out_sig=[np.complex64, np.uint8])
 
-        self.snr = np.array([[snr]])                                 # channel snr, should be estimated
+        # snr = np.float32(snr)
+        self.snr = np.array([[snr]])             		     # channel snr, should be estimated
         self.packet_len = packet_len                                 # packet length = 48
 
         self.video_file = cv2.VideoCapture(video_file)               # load video file
@@ -231,10 +232,12 @@ class deep_jscc_source(gr.sync_block):
     def forward(self, gop):
         codes = [None] * self.gop_size
         code_lengths = [None] * self.gop_size
+        # gop = np.array(gop, dtype = gop.dtype, order = 'C')		# Convert the frame to row-major order
         if self.first:
             self.first = False
             init_frame = gop[0]
-            init_code = self.key_encoder((init_frame, self.snr))[0]
+            # print(init_frame.dtype())		#dtype = float32
+            init_code = self.key_encoder.run((init_frame, self.snr))[0]
             codes[0] = init_code.reshape(-1, 2)                         # Because real+img?
             code_lengths[0] = init_code.size // 2
         else:
@@ -255,23 +258,23 @@ class deep_jscc_source(gr.sync_block):
                                         self.ss_sigma, 3, self.ss_levels)
             vol2 = generate_ss_volume(torch.from_numpy(gop[pred_idx + dist]),
                                         self.ss_sigma, 3, self.ss_levels)
-            flow1 = self.ssf_net(np.concatenate((gop[pred_idx], gop[pred_idx - dist]), axis=1))		# flow1 = [predict, 1st]
-            flow2 = self.ssf_net(np.concatenate((gop[pred_idx], gop[pred_idx + dist]), axis=1))		# flow2 = [predict, 5th]
+            flow1 = self.ssf_net.run(np.concatenate((gop[pred_idx], gop[pred_idx - dist]), axis=1))[0]		# flow1 = [predict, 1st]
+            flow2 = self.ssf_net.run(np.concatenate((gop[pred_idx], gop[pred_idx + dist]), axis=1))[0]		# flow2 = [predict, 5th]
 
-            w1 = ss_warp(vol1, torch.from_numpy(flow1).unsqueeze(2)).numpy()
-            w2 = ss_warp(vol2, torch.from_numpy(flow2).unsqueeze(2)).numpy()
+            w1 = ss_warp(vol1, torch.from_numpy(flow1).unsqueeze(2)).detach().numpy()
+            w2 = ss_warp(vol2, torch.from_numpy(flow2).unsqueeze(2)).detach().numpy()
             r1 = gop[pred_idx] - w1
             r2 = gop[pred_idx] - w2
             interp_input = np.concatenate([gop[pred_idx], w1, w2, r1, r2, flow1, flow2], axis=1)
             interp_inputs[pred_idx] = interp_input # interp_inputs = [gop0, information1, information2, information3,]
 
-        bw_state = np.concatenate(interp_inputs, axis=1)
-        bw_policy = self.bw_allocator((bw_state, self.snr))[0]
-        bw_alloc = np.argmax(bw_policy, axis=1)			# allocate the bw with highest ..?
+        bw_state = np.concatenate(interp_inputs, axis=1) # shape = (1, 3+21+21+21+3, 240, 320)
+        bw_policy = self.bw_allocator.run((bw_state, self.snr))[0]
+        bw_alloc = np.argmax(bw_policy) # , axis=0)			# allocate the bw with highest ..?
         bw_alloc = self.bw_set[bw_alloc[0, 0]] * self.bw_size
 
         last = interp_inputs[-1]				# =gop[-1]
-        last_code = self.key_encoder((last, self.snr))[0]
+        last_code = self.key_encoder.run((last, self.snr))[0]
         last_code = last_code[:, bw_alloc[0]:]
         codes[-1] = last_code.reshape(-1, 2)
         code_lengths[-1] = last_code.size // 2
@@ -284,7 +287,7 @@ class deep_jscc_source(gr.sync_block):
                 dist = 1
 
             interp_input = interp_inputs[pred_idx]
-            interp_code = self.interp_encoder((interp_input, self.snr))[0]
+            interp_code = self.interp_encoder.run((interp_input, self.snr))[0]
             interp_code = interp_code[:, bw_alloc[pred_idx]:]
             codes[pred_idx] = interp_code.reshape(-1, 2)
             code_lengths[pred_idx] = interp_code.size // 2
@@ -294,14 +297,21 @@ class deep_jscc_source(gr.sync_block):
     def get_gop(self, gop_idx):
         start_frame = int(gop_idx * 4)
         self.video_file.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
+        # frames = np.array([])
         frames = []
         for _ in range(5):
-            flag, frame = self.video_file.read()
+            flag, frame = self.video_file.read()		# frame.shape = (hight, width, 3) = (240, 320, 3) 
             assert flag
-            frame = np.swapaxes(frame, 0, 2)			# [3, height, width]?
-            frame = np.swapaxes(frame, 1, 2)			# [3, width, height]?
+            frame = np.array(frame, dtype=np.float32, order='C') # conver the frame to row-major order, https://github.com/onnx/onnx-tensorrt/issues/237
+            frame = np.swapaxes(frame, 0, 2)			# [3, width, height] = (3, 320, 240)
+            frame = np.swapaxes(frame, 1, 2)			# [3, height, width] = (3, 240, 320)
             frame = np.expand_dims(frame, axis=0) / 255.0	# normalisation to [0,1]
+            frame = np.array(frame, dtype=np.float32, order='C') # conver the frame to row-major order
+            frame.flags							# verify the contiguous
+            # frame32 = np.float32(frame)				# float 64 to numpy float 32
+            # frames = np.append(frames, frame32)
             frames.append(frame)
+            # frames = np.array(frames, dtype=np.float32, order='C') # conver the frame to row-major order
         return frames
 
     def work(self, input_items, output_items):
@@ -364,5 +374,5 @@ class deep_jscc_source(gr.sync_block):
 if __name__ == '__main__':
     x = np.zeros(1)
     source = deep_jscc_source('/home/xaviernx/Downloads/UCF-101/ApplyEyeMakeup/v_ApplyEyeMakeup_g01_c01.avi',
-                            '/home/xaviernx/onnx_output', 5, 96)
+                            '/home/xaviernx/onnx_output', 0.35 , 96)
     source.work(None, [[None]*100, [None]*100])

@@ -276,7 +276,7 @@ class deep_jscc_source(gr.sync_block):
 
         last = interp_inputs[-1]				# =gop[-1]
         last_code = self.key_encoder.run((last, self.snr))[0]
-        last_code = last_code[:, bw_alloc[0]:]
+        last_code = last_code[:, :bw_alloc[0]]
         codes[-1] = last_code.reshape(-1, 2)
         code_lengths[-1] = last_code.size // 2
         self.prev_last = last_code
@@ -288,8 +288,8 @@ class deep_jscc_source(gr.sync_block):
                 dist = 1
 
             interp_input = interp_inputs[pred_idx]
-            interp_code = self.interp_encoder.run((interp_input, self.snr))[0]
-            interp_code = interp_code[:, bw_alloc[pred_idx]:]
+            interp_code = self.interp_encoder.run((interp_input, self.snr))[0] # (1, 240, 15, 20)
+            interp_code = interp_code[:, :bw_alloc[pred_idx]]			# (1, 240-bw_alloc , 15 ,20)
             codes[pred_idx] = interp_code.reshape(-1, 2)
             code_lengths[pred_idx] = interp_code.size // 2
 
@@ -297,6 +297,7 @@ class deep_jscc_source(gr.sync_block):
 
     def get_gop(self, gop_idx):
         start_frame = int(gop_idx * 4)
+	# CAP_PROP_POS_FRAMES: 0-based index of the frame to be decoded/captured next.
         self.video_file.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
         # frames = np.array([])
         frames = []
@@ -338,13 +339,13 @@ class deep_jscc_source(gr.sync_block):
                 new_gop = True
 
                 curr_gop = self.get_gop(self.gop_idx)
-                self.curr_codes, self.curr_code_lengths = self.forward(curr_gop)
+                self.curr_codes, self.curr_code_lengths = self.forward(curr_gop)  # gather a new gop
             else:
                 new_gop = False
 
 	    # proportion of frames k1:k2:k3:k4 = lengths[1]:lengths[2]:length[3]:length[4]
         for frame_index in range(self.gop_size - 1):	                                        # -1 because the first frame is not transmitted
-            pmt.s32vector_set(frame_lengths, frame_index, curr_code_lengths[frame_index + 1])	# +1 to map from [0:3] to [1:4]
+            pmt.s32vector_set(frame_lengths, frame_index, self.curr_code_lengths[frame_index + 1])	# +1 to map from [0:3] to [1:4]
 
 	
         if self.running_idx % self.packet_len == 0:

@@ -141,7 +141,7 @@ def generate_ss_volume(x, sigma, kernel_size, M):
     out = torch.stack(out, dim=2)
     return out
 
-
+# Generates permutations without repetition, generate all the ways to allocate bandwidth in get_bw_set
 def perms_without_reps(s):
     partitions = list(Counter(s).items())
 
@@ -161,7 +161,7 @@ def perms_without_reps(s):
                 out[idx] = partitions[i][0]
         yield out
 
-
+# Bw split
 def split_list_by_val(x, s):
     size = len(x)
     idx_list = [idx + 1 for idx, val in enumerate(x) if val == s]
@@ -340,35 +340,36 @@ class deep_jscc_source(gr.sync_block):
 
                 curr_gop = self.get_gop(self.gop_idx)
                 self.curr_codes, self.curr_code_lengths = self.forward(curr_gop)  # gather a new gop
+                self.curr_codeword = 0
             else:
                 new_gop = False
 
 	    # proportion of frames k1:k2:k3:k4 = lengths[1]:lengths[2]:length[3]:length[4]
-        for frame_index in range(self.gop_size - 1):	                                        # -1 because the first frame is not transmitted
-            pmt.s32vector_set(frame_lengths, frame_index, self.curr_code_lengths[frame_index + 1])	# +1 to map from [0:3] to [1:4]
+            for frame_index in range(self.gop_size - 1):	                                        # -1 because the first frame is not transmitted
+                pmt.s32vector_set(frame_lengths, frame_index, self.curr_code_lengths[frame_index + 1])	# +1 to map from [0:3] to [1:4]
 
 	
-        if self.running_idx % self.packet_len == 0:
+            if self.running_idx % self.packet_len == 0:
 		# add_item_tag(which_output, abs_offset, key, value)
-            self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('packet_len'), pmt.from_long(self.packet_len))
-            self.add_item_tag(1, payload_idx + self.nitems_written(1), pmt.intern('packet_len'), pmt.from_long(self.packet_len))
+                self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('packet_len'), pmt.from_long(self.packet_len))
+                self.add_item_tag(1, payload_idx + self.nitems_written(1), pmt.intern('packet_len'), pmt.from_long(self.packet_len))
 
-            self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('new_gop'), pmt.from_bool(new_gop)) 
-            self.add_item_tag(1, payload_idx + self.nitems_written(1), pmt.intern('new_gop'), pmt.from_bool(new_gop))
+                self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('new_gop'), pmt.from_bool(new_gop)) 
+                self.add_item_tag(1, payload_idx + self.nitems_written(1), pmt.intern('new_gop'), pmt.from_bool(new_gop))
             
-            self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('frame_lengths'), frame_lengths)
-            self.add_item_tag(1, payload_idx + self.nitems_written(0), pmt.intern('frame_lengths'), frame_lengths)
+                self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('frame_lengths'), frame_lengths)
+                self.add_item_tag(1, payload_idx + self.nitems_written(0), pmt.intern('frame_lengths'), frame_lengths)
 
-            # self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('new_codeword'), pmt.from_bool(new_codeword)) 
-            # self.add_item_tag(1, payload_idx + self.nitems_written(1), pmt.intern('new_codeword'), pmt.from_bool(new_codeword))
+                # self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('new_codeword'), pmt.from_bool(new_codeword)) 
+                # self.add_item_tag(1, payload_idx + self.nitems_written(1), pmt.intern('new_codeword'), pmt.from_bool(new_codeword))
 
-	    # codes.size = [;,2]?
-        symbol = self.curr_codes[self.curr_codeword][self.pair_idx, 0] + self.curr_codes[self.curr_codeword][self.pair_idx, 1]*1j
-        payload_out[payload_idx] = symbol
-        byte_out[payload_idx] = np.uint8(7)
+	        # codes.size = [;,2]?
+            symbol = self.curr_codes[self.curr_codeword][self.pair_idx, 0] + self.curr_codes[self.curr_codeword][self.pair_idx, 1]*1j
+            payload_out[payload_idx] = symbol
+            byte_out[payload_idx] = np.uint8(7)
 
-        self.pair_idx += 1
-        self.running_idx += 1
+            self.pair_idx += 1
+            self.running_idx += 1
 
         
         return len(output_items[0])

@@ -34,5 +34,6 @@ except ImportError:
 # import any pure python here
 from .embedded_python_block import embedded_python_block
 from .deep_jscc_source import deep_jscc_source
+from .deep_jscc_sink import deep_jscc_sink
 
 #

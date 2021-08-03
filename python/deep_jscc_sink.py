@@ -169,7 +169,8 @@ class deep_jscc_sink(gr.sync_block):
         self.curr_codes = None                                  # 
         self.bw_per_gop = 240 * 15 * 20 // 2                    # divided by 2 because real part + imaginary part of 
         self.total_bw = self.bw_per_gop * (self.n_gops + 1)
-    
+        self.payload = []
+
     def get_engine(self, nets):
         key_decoder, interp_decoder, ssf_net = nets
         key_decoder_engine = backend.prepare(key_decoder)
@@ -182,22 +183,45 @@ class deep_jscc_sink(gr.sync_block):
         key_decoder = onnx.load(model_dir + '/key_decoder_simp.onnx')
         interp_decoder = onnx.load(model_dir + '/interp_decoder_simp.onnx')
         ssf_net = onnx.load(model_dir + '/ssf_net_simp.onnx')
-        nets = (key_decoder, interp_dšcoder, ssf_net)
+        nets = (key_decoder, interp_decoder, ssf_net)
         return nets
 
-    def receive(self, codes, keyFrame):
-        if keyFrame == True:
-            frame = self.key_decoder((codes))[0]
-        else:    
-            flow1, r, flow2, mask = self.interp_decoder.run((codes))[0]
-        
+    def receive(self, codes, frame_lengths):
+        code_gop = [None] * (len(frame_lengths)+1)
+        code_gop[0] = first_code # Todo
 
-        return None
+        for idx in len(frame_lengths):
+            if idx == 0:
+                code_gop[idx + 1] = codes[0 : frame_lengths[idx]].reshape(1, frame_lengths[idx]/300 , 15, 20)
+            else:
+                code_gop[idx + 1] = codes[frame_lengths[idx - 1] :frame_lengths[idx]].reshape(1, frame_lengths[idx]/300 , 15, 20)
+
+        last_code = self.key_decoder.run((code_gop[-1]))[0]
+
+        for pred_idx in [2 ,1 ,3]:
+            if pred_idx == 2:
+                dist = 2
+            else:
+                dist = 1  
+            #flow1, r, flow2, mask = self.interp_decoder.run((code_gop[code_idx]))[0]
+            #w1 = ss_warp(code_gop[0], torch.from_numpy(flow1).unsqueeze(2)).detach().numpy()
+            #w2 = ss_warp(code_gop[-1], torch.from_numpy(flow2).unsqueeze(2)).detach().numpy()
+        
+            # frame = mask * w1 + mask * w2 + mask * r
+        return True
         
     def work(self, input_items, output_items):
-        payload = []
+        reconstruct = False
         payload_in = input_items[0]
         byte_in = input_items[1]
+	payload_in1 = []
+	payload_in2 = []
+        # payload convert from img to real number
+        for number in len(payload_in):
+            payload_in1[number] = payload_in[number].real
+            payload_in2[number] = payload_in[number].imag
+	payload_in = [payload_in1, payload_in2]
+
         # self.get_tags_in_window(which_input, rel_start, rel_end)
         # Catch the tags and convert to python
         tags = self.get_tags_in_window(0, 0, len(byte_in))
@@ -207,9 +231,14 @@ class deep_jscc_sink(gr.sync_block):
         new_gop = tags['new_gop']
         frame_lengths = tags['frame_lengths']
 
+        if new_gop == True:
+            reconstruct = self.receive(self.payload, frame_lengths)
+            self.payload = []
+        self.payload.append(payload_in)
+
         print('Payload size is : {}\n' .format(payload_in.shape))
         print('Packet length is : {}, whether is a new gop: {}, frame length is : {}\n' .format(self.packet_len, new_gop, frame_lengths))
-        # <+signal processing here+>
+        print('Reconstruction result is {}' .format(reconstruct))
         return len(input_items[0])
 
 if __name__ == '__main__':

@@ -204,6 +204,7 @@ class deep_jscc_source(gr.sync_block):
         self.curr_codes = None                                  # 
         self.bw_per_gop = 240 * 15 * 20 // 2                    # divided by 2 because real part + imaginary part of 
         self.total_bw = self.bw_per_gop * (self.n_gops + 1)     # total bandwidth = individual bandwidth * number of gops
+        self.bw_allocation = None
 
     def get_bw_set(self):
         bw_set = [1] * self.bw_size + [0] * (self.gop_size - 2)             # 
@@ -272,7 +273,9 @@ class deep_jscc_source(gr.sync_block):
         bw_policy = self.bw_allocator.run((bw_state, self.snr))[0]
         # bw_alloc = np.argmax(bw_policy) # , axis=0)			# allocate the bw with highest ..?
         # bw_alloc = self.bw_set[bw_alloc[0, 0]] * self.bw_size
-        bw_alloc = self.bw_set[bw_policy[0]] * self.bw_size
+        bw_alloc = self.bw_set[bw_policy[0]] 
+        bw_alloc = [val * 12 for val in bw_alloc]
+        self.bw_allocation = bw_alloc
 
         last = interp_inputs[-1]				# =gop[-1]
         last_code = self.key_encoder.run((last, self.snr))[0]
@@ -321,6 +324,9 @@ class deep_jscc_source(gr.sync_block):
         byte_out = output_items[1]
         frame_lengths = pmt.make_s32vector(4, 0)
         curr_code_lengths = []
+        frame_code_length = 0
+        base = 100
+
 
         for payload_idx in range(len(payload_out)):
             if self.curr_codes is None:
@@ -344,11 +350,13 @@ class deep_jscc_source(gr.sync_block):
             else:
                 new_gop = False
 
-	    # proportion of frames k1:k2:k3:k4 = lengths[1]:lengths[2]:length[3]:length[4]
+	        # proportion of frames k1:k2:k3:k4 = lengths[1]:lengths[2]:length[3]:length[4]
             for frame_index in range(self.gop_size - 1):	                                        # -1 because the first frame is not transmitted
                 pmt.s32vector_set(frame_lengths, frame_index, self.curr_code_lengths[frame_index + 1])	# +1 to map from [0:3] to [1:4]
-
-	
+            # the following frame_code_length takes at least 24 bit to store
+            for frame_index in range(len(self.bw_allocation)):
+                frame_code_length += self.bw_allocation[frame_index] * (base ** (3 - frame_index))
+            
             if self.running_idx % self.packet_len == 0:
 		# add_item_tag(which_output, abs_offset, key, value)
                 self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('packet_len'), pmt.from_long(self.packet_len))
@@ -357,9 +365,13 @@ class deep_jscc_source(gr.sync_block):
                 self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('new_gop'), pmt.from_bool(new_gop)) 
                 self.add_item_tag(1, payload_idx + self.nitems_written(1), pmt.intern('new_gop'), pmt.from_bool(new_gop))
             
-                self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('frame_lengths'), frame_lengths)
-                self.add_item_tag(1, payload_idx + self.nitems_written(0), pmt.intern('frame_lengths'), frame_lengths)
+                #self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('frame_lengths'), frame_lengths)
+                #self.add_item_tag(1, payload_idx + self.nitems_written(0), pmt.intern('frame_lengths'), frame_lengths)
 
+                self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('frame_lengths'), pmt.from_long(frame_code_length))
+                self.add_item_tag(1, payload_idx + self.nitems_written(0), pmt.intern('frame_lengths'), pmt.from_long(frame_code_length))
+
+                self.running_idx = 0
                 # self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('new_codeword'), pmt.from_bool(new_codeword)) 
                 # self.add_item_tag(1, payload_idx + self.nitems_written(1), pmt.intern('new_codeword'), pmt.from_bool(new_codeword))
 

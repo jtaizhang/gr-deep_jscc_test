@@ -36,6 +36,7 @@ import onnx_tensorrt.backend as backend
 from gnuradio import gr
 import pmt
 import subprocess
+#import os
 
 class GaussianSmoothing(nn.Module):
     """
@@ -173,7 +174,7 @@ class deep_jscc_sink(gr.sync_block):
     """
     docstring for block deep_jscc_sink
     """
-    def __init__(self, video_file, model_dir, packet_len, snr):
+    def __init__(self, video_file, model_dir, snr, packet_len):
         gr.sync_block.__init__(self,
             name="deep_jscc_sink",
             in_sig=None,
@@ -212,6 +213,8 @@ class deep_jscc_sink(gr.sync_block):
         self.total_bw = self.bw_per_gop * (self.n_gops + 1)     # total bandwidth = individual bandwidth * number of gops
         self.gop_IQ = []
 
+        # ffmpeq error: export DBUS_FATAL_WARNINGS=0 https://bugs.launchpad.net/ubuntu/+source/libsdl2/+bug/1775067
+        # unset XMODIFIERS
         self.output_pipe = (ffmpeg
                             .input('pipe:', format='rawvideo', pix_fmt='rgb24', s='{}x{}'.format(320, 240))
                             .output('pipe:', format='rawvideo', pix_fmt='rgb24')
@@ -223,8 +226,8 @@ class deep_jscc_sink(gr.sync_block):
             [
                 'ffplay',
                 '-f', 'rawvideo',
-                '-pix_fmt', 'rgb24',
-                '-s', '{}x{}'.format(320, 240),
+                '-pixel_format', 'rgb24',
+                '-video_size', '{}x{}'.format(320, 240),
                 '-i', 'pipe:',
             ],
             stdin=self.output_pipe.stdout,
@@ -325,7 +328,7 @@ class deep_jscc_sink(gr.sync_block):
         self.video_file.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
         # frames = np.array([])
         frames = []
-        for _ in range(5):
+        for _ in range(30):
             flag, frame = self.video_file.read()		# frame.shape = (hight, width, 3) = (240, 320, 3) 
             assert flag
             frame = np.array(frame, dtype=np.float32, order='C') # conver the frame to row-major order, https://github.com/onnx/onnx-tensorrt/issues/237
@@ -342,7 +345,7 @@ class deep_jscc_sink(gr.sync_block):
 
     def write_to_pipe(self, frames):
         for frame in frames:
-            # TODO check if swapping colour axis necessary
+            # swapping colour axis necessary
             r = np.copy(frame[:, 0, :, :])
             b = np.copy(frame[:, 2, :, :])
             frame[:, 0, :, :] = b
@@ -352,23 +355,26 @@ class deep_jscc_sink(gr.sync_block):
             frame = np.swapaxes(frame, 0, 2)			# [3, width, height] = (3, 320, 240)
             frame = np.swapaxes(frame, 0, 1)			# [3, height, width] = (3, 240, 320)
             frame = np.round(frame * 255.0)
+            # os.environ["DBUS_FATAL_WARNINGS"] = 0
             self.output_pipe.stdin.write(frame.astype(np.uint8).tobytes())
 
     def msg_handler(self, msg_pmt):
         tags = pmt.to_python(pmt.car(msg_pmt)) # should be a dictionary of tags
         payload_in = pmt.to_python(pmt.cdr(msg_pmt)) # should be the packet data
 
+        # Verify if it is the first frame
         if tags['first'] and not self.first_received:
             self.first_received = True
             is_first = True
         else:
             is_first = False
 
+        # When the first frame is received
         if self.first_received:
             new_gop = tags['new_gop']
             if new_gop:
                 self.gop_IQ = []
-                self.gop_bw_policy = []
+                self.gop_bw_policy = []       
 
             for pair in payload_in:
                 self.gop_IQ.append([pair.real, pair.imag])

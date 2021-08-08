@@ -37,6 +37,9 @@ from gnuradio import gr
 import pmt
 import subprocess
 #import os
+import gi 
+gi.require_version('Gst', '1.0')
+from gi.repository import Gst, GObject
 
 class GaussianSmoothing(nn.Module):
     """
@@ -230,8 +233,20 @@ class deep_jscc_sink(gr.sync_block):
                 '-video_size', '{}x{}'.format(320, 240),
                 '-i', 'pipe:',
             ],
-            stdin=self.output_pipe.stdout,
+            stdin = self.output_pipe.stdout,
         )
+	
+        # Not working because it only accept files
+        #self.output_play = subprocess.Popen(
+        #    [
+        #        'gst-launch-1.0', 
+        #        'filesrc location=video.raw', '!',
+        #        'queue', '!',
+        #        'rawvideoparse use-sink-caps=false', '\ ',
+        #        'width=320 height=240 format=RGB ! autovideosink',
+        #    ],
+        #    #stdin = self.output_pipe.stdout
+        #)
 
     def get_bw_set(self):
         bw_set = [1] * self.bw_size + [0] * (self.gop_size - 2)             # 
@@ -357,6 +372,14 @@ class deep_jscc_sink(gr.sync_block):
             frame = np.round(frame * 255.0)
             # os.environ["DBUS_FATAL_WARNINGS"] = 0
             self.output_pipe.stdin.write(frame.astype(np.uint8).tobytes())
+	    # The following stores the video and read it in gstreamer
+	    #fourcc = cv.VideoWriter_fourcc('m', 'p', '4', 'v')
+	    #out = cv2.VideoWriter('output.avi', fourcc, fps, (320,2 40))
+	    #out.write(frame)
+            #Gst.init(None)
+            #pipeline = Gst.parse_launch("filesrc location='output.avi' ! rawvideoparse use-sink-caps=false \
+            #                            width=320 height=240 format=RGB ! autovideosink")
+
 
     def msg_handler(self, msg_pmt):
         tags = pmt.to_python(pmt.car(msg_pmt)) # should be a dictionary of tags
@@ -430,5 +453,5 @@ if __name__ == '__main__':
     source = deep_jscc_sink('/home/xaviernx/Downloads/UCF-101/HulaHoop/v_HulaHoop_g13_c03.avi',
                             '/home/xaviernx/onnx_output', 0.35 , 96)
     #source.work(None, [[None]*100, [None]*100])
-    frames = source.get_gop(1)
+    frames = source.get_gop(3)
     source.write_to_pipe(frames)

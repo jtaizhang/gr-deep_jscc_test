@@ -29,8 +29,19 @@ namespace gr {
   namespace deep_jscc_test {
 
     /*!
-     * \brief <+description+>
+     * format looks like:
      *
+     * \li new_gop   (2 bits): whether it is a new gop (group of pictures)
+     * \li first     (2 bits): whether it is the first frame
+     * \li bw_policy (12 bits): bw allocation number
+     *
+     * Instead of duplicating the payload length, we only add it once
+     * and use the CRC8 to make sure it's correctly received.
+     *
+     * \verbatim
+         |  0 -- 1 | 2 -- 3 | 4 -- 15   |   * 3 : hard code for 3 times
+         | new_gop |  first | bw_policy |
+       \endverbatim
      */
     class DEEP_JSCC_TEST_API packet_header_jscc : public gr::digital::packet_header_default
     {
@@ -47,7 +58,17 @@ namespace gr {
           bool scramble_header);
 
       ~packet_header_jscc();
-
+      /*!
+       * \brief Encodes the header information in the given tags into
+       * bits and places them into \p out.
+       *
+       * \details
+       * Uses the following header format:
+       *  - Bits 0-1: whether new gop
+       *  - Bits 2-3: whether first frame
+       *  - Bit 4-15: bw_policy (11bit sufficient)
+       */
+  
       bool header_formatter(
           long packet_len,
           unsigned char *out,

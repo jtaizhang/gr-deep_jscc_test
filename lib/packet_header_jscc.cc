@@ -26,7 +26,7 @@
 #include <deep_jscc_test/packet_header_jscc.h>
 #include <gnuradio/digital/lfsr.h>
 #include <iostream>
-
+#include <stdbool.h>
 namespace gr {
 namespace deep_jscc_test {
 
@@ -123,26 +123,33 @@ unsigned packet_header_jscc::extract_from_header_buffer(std::vector<unsigned cha
 
 bool packet_header_jscc::header_formatter(long packet_len, unsigned char *out, const std::vector<tag_t> &tags)
 {
-  unsigned img_num = 0;
-  unsigned chunk_num = 0;
+  bool new_gop = 0;
+  bool first = 0;
+  unsigned bw_policy = 0;
   // Find our Image Number
   for (size_t i = 0; i < tags.size(); i++)
   {
-    if (pmt::equal(tags[i].key, pmt::intern("img_num")))
+    if (pmt::equal(tags[i].key, pmt::intern("new_gop")))
     {
-      img_num = static_cast<unsigned int>(pmt::to_long(tags[i].value));
+      new_gop = static_cast<bool>(pmt::to_bool(tags[i].value));
     }
-    if (pmt::equal(tags[i].key, pmt::intern("chunk_num")))
+    if (pmt::equal(tags[i].key, pmt::intern("first")))
     {
-      chunk_num = static_cast<unsigned int>(pmt::to_long(tags[i].value));
+      first = static_cast<bool>(pmt::to_bool(tags[i].value));
+    }
+    if (pmt::equal(tags[i].key, pmt::intern("bw_policy")))
+    {
+      bw_policy = static_cast<unsigned int>(pmt::to_long(tags[i].value));
     }
   }
 
   // bool ret_val = packet_header_default::header_formatter(packet_len, out, tags);
+  // TODO check the function of the following block
   packet_len &= 0x0FF;
   Md_crc_impl.reset();
-  Md_crc_impl.process_bytes((void const *)&img_num, 2);
-  Md_crc_impl.process_bytes((void const *)&chunk_num, 1);
+  Md_crc_impl.process_bytes((void const *)&new_gop, 3);
+  Md_crc_impl.process_bytes((void const *)&first, 2);
+  Md_crc_impl.process_bytes((void const *)&bw_policy, 1);
   // Md_crc_impl.process_bytes((void const *) &packet_len, 1);
   // Md_crc_impl.process_bytes((void const *) &Md_header_number, 1);
   unsigned char crc = Md_crc_impl();
@@ -158,8 +165,9 @@ bool packet_header_jscc::header_formatter(long packet_len, unsigned char *out, c
   for (int i = 0; i < 3; i++) // FIXME this is hard coded to give 48 bits, should find a more flexible solution
   {
     //Image_number
-    insert_into_header_buffer(out, k, img_num, 12);
-    insert_into_header_buffer(out, k, chunk_num, 4);
+    insert_into_header_buffer(out, k, new_gop, 2);
+    insert_into_header_buffer(out, k, first, 2);
+    insert_into_header_buffer(out, k, new_gop, 12);
     // insert_into_header_buffer(out,k,crc,8);
   }
 
@@ -192,17 +200,20 @@ bool packet_header_jscc::header_parser(
 
   int k = 0; // Position in "in"
 
-  std::vector<unsigned> header_img_num(3);
-  std::vector<unsigned> header_chunk_num(3);
+  std::vector<bool> header_new_gop(3);
+  std::vector<bool> header_first(3);
+  std::vector<unsigned> header_bw_policy(3);
 
   for (int i = 0; i < 3; i++)
   {
-    header_img_num[i] = extract_from_header_buffer(in_descrambled, k, 12);
-    header_chunk_num[i] = extract_from_header_buffer(in_descrambled, k, 4);
+    header_new_gop[i] = extract_from_header_buffer(in_descrambled, k, 2);
+    header_first[i] = extract_from_header_buffer(in_descrambled, k, 2);
+    header_bw_policy[i] = extract_from_header_buffer(in_descrambled, k, 12);
     // unsigned header_crc = extract_from_header_buffer(in_descrambled,k,8);
   }
-  header_img_num[0] = (header_img_num[0] & header_img_num[1]) | (header_img_num[1] & header_img_num[2]) | (header_img_num[0] & header_img_num[2]);
-  header_chunk_num[0] = (header_chunk_num[0] & header_chunk_num[1]) | (header_chunk_num[1] & header_chunk_num[2]) | (header_chunk_num[0] & header_chunk_num[2]);
+  header_new_gop[0] = (header_new_gop[0] & header_new_gop[1]) | (header_new_gop[1] & header_new_gop[2]) | (header_new_gop[0] & header_new_gop[2]);
+  header_first[0] = (header_first[0] & header_first[1]) | (header_first[1] & header_first[2]) | (header_first[0] & header_first[2]);
+  header_bw_policy[0] = (header_bw_policy[0] & header_bw_policy[1]) | (header_bw_policy[1] & header_bw_policy[2]) | (header_bw_policy[0] & header_bw_policy[2]);
   // Md_crc_impl.reset();
   // Md_crc_impl.process_bytes((void const *) &header_image_num, 2);
   // Md_crc_impl.process_bytes((void const *) &header_chunk_num, 1);
@@ -227,12 +238,16 @@ bool packet_header_jscc::header_parser(
   tagH.value = pmt::from_long(packet_len);
   tags.push_back(tagH);
 
-  tagH.key = pmt::intern("img_num");
-  tagH.value = pmt::from_long(header_img_num[0]);
+  tagH.key = pmt::intern("new_gop");
+  tagH.value = pmt::from_bool(header_new_gop[0]);
   tags.push_back(tagH);
 
-  tagH.key = pmt::intern("chunk_num");
-  tagH.value = pmt::from_long(header_chunk_num[0]);
+  tagH.key = pmt::intern("first");
+  tagH.value = pmt::from_bool(header_first[0]);
+  tags.push_back(tagH);
+
+  tagH.key = pmt::intern("bw_policy");
+  tagH.value = pmt::from_long(header_bw_policy[0]);
   tags.push_back(tagH);
 
   // if (Md_num_tag_key == pmt::PMT_NIL)

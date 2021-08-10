@@ -34,9 +34,10 @@ using namespace gr::digital;
 
 %include "gnuradio/digital/packet_header_default.h"
 %template(packet_header_default_sptr) boost::shared_ptr<gr::digital::packet_header_default>;
-%include "deep_jscc_test/packet_header_jscc.h"
 %template(packet_header_jscc_sptr) boost::shared_ptr<gr::deep_jscc_test::packet_header_jscc>;
 %pythoncode %{
 packet_header_jscc_sptr.__repr__ = lambda self: "<packet_header_jscc>"
 packet_header_jscc = packet_header_jscc .make;
 %}
+
+%include "deep_jscc_test/packet_header_jscc.h"

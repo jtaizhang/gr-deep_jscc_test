@@ -19,8 +19,8 @@
 # Boston, MA 02110-1301, USA.
 install(FILES
     deep_jscc_test_ofdm_jscc_equalizer_single_tap.block.yml
-    deep_jscc_test_packet_header_jscc.block.yml
     deep_jscc_test_embedded_python_block.block.yml
     deep_jscc_test_deep_jscc_source.block.yml
-    deep_jscc_test_deep_jscc_sink.block.yml DESTINATION share/gnuradio/grc/blocks
+    deep_jscc_test_deep_jscc_sink.block.yml
+    deep_jscc_test_packet_header_jscc.block.yml DESTINATION share/gnuradio/grc/blocks
 )

@@ -66,7 +66,7 @@ namespace gr {
        * Uses the following header format:
        *  - Bits 0-1: whether new gop
        *  - Bits 2-3: whether first frame
-       *  - Bit 4-15: bw_policy (11bit sufficient)
+       *  - Bit 4-15: bw_policy, 1771 cases (11bit sufficient)
        */
   
       bool header_formatter(

@@ -32,7 +32,6 @@ endif()
 GR_PYTHON_INSTALL(
     FILES
     __init__.py
-    embedded_python_block.py
     deep_jscc_source.py
     deep_jscc_sink.py DESTINATION ${GR_PYTHON_DIR}/deep_jscc_test
 )

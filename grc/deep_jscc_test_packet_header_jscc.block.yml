@@ -4,7 +4,7 @@ category: '[deep_jscc_test]'
 
 templates:
   imports: import deep_jscc_test
-  make: deep_jscc_test.packet_header_jscc()
+  make: deep_jscc_test.packet_header_jscc($&occupied_carriers, $n_syms, $&len_tag_key, $&frame_len_tag_key, $&num_tag_key, $bits_per_header_sym, $bits_per_payload_sym, $scramble_header)
 
 #  Make one 'parameters' list entry for every parameter you want settable from the GUI.
 #     Keys include:

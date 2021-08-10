@@ -18,10 +18,10 @@ parameters:
 - id: model_dir
   label: Model Directory
   dtype: string
-  - id: snr
+- id: snr
   label: SNR
   dtype: float
-  - id: packet_len
+- id: packet_len
   label: Packet Length
   dtype: int
 

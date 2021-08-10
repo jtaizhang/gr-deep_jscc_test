@@ -319,36 +319,43 @@ class deep_jscc_source(gr.sync_block):
         #base = 100
 
         for payload_idx in range(len(payload_out)):
+            # if no codes, get one, first = true
+            # if have codes, first = false??
             if self.curr_codes is None:
+                first = True
                 self.gop_idx = 0
                 curr_gop = self.get_gop(self.gop_idx)
-                self.curr_codes, bw_policy = self.forward(curr_gop, True) # gather a new gop
-                first = True
+                self.curr_codes, bw_policy = self.forward(curr_gop, True) # gather a new gop     
             else:
                 first = False
-
+            
+            # if last pair of symbol is transmitted, new code number  
             if self.pair_idx == (self.curr_codes[self.curr_codeword].shape[0]):
                 self.curr_codeword += 1
                 self.pair_idx = 0
 
-            if self.curr_codeword == (len(self.curr_codes)):
+            # if last code is transmiited(4)
+            if self.curr_codeword == 0 & self.pair_idx == 0:
+                new_gop = True
+            elif self.curr_codeword == (len(self.curr_codes)):
                 self.gop_idx += 1  
                 self.curr_codeword = 0
                 new_gop = True
             else:
                 new_gop = False
 
-            if new_gop and self.gop_idx < self.n_gops:
+            if new_gop & self.gop_idx > 0 & self.gop_idx < self.n_gops:
                 curr_gop = self.get_gop(self.gop_idx)
                 self.curr_codes, bw_policy = self.forward(curr_gop, False)  # gather a new gop
                 first = False
-            elif self.gop_idx == self.n_gops:
-                self.gop_idx = 0
+            elif self.gop_idx == self.n_gops:           # last gop is passed
+                self.gop_idx = 0                        #
                 curr_gop = self.get_gop(self.gop_idx)
                 self.curr_codes, bw_policy = self.forward(curr_gop, True) # gather a new gop
                 first = True
             else:
-                raise 'something went wrong with the indexing'
+                pass
+                #raise 'something went wrong with the indexing'
 
 	        # proportion of frames k1:k2:k3:k4 = lengths[1]:lengths[2]:length[3]:length[4]
             #for frame_index in range(self.gop_size - 1):	                                        # -1 because the first frame is not transmitted

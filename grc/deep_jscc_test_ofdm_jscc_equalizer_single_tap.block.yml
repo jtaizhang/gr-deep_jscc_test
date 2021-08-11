@@ -4,7 +4,7 @@ category: '[deep_jscc_test]'
 
 templates:
   imports: import deep_jscc_test
-  make: deep_jscc_test.ofdm_jscc_equalizer_single_tap($fft_len, $&occupied_carriers, $&pilot_carriers, $&pilot_symbols, $symbols_skipped, $input_is_shifted)
+  make: deep_jscc_test.ofdm_jscc_equalizer_single_tap(${fft_len}, ${&occupied_carriers}, ${&pilot_carriers}, ${&pilot_symbols}, ${symbols_skipped}, ${input_is_shifted})
 
 #  Make one 'parameters' list entry for every parameter you want settable from the GUI.
 #     Keys include:

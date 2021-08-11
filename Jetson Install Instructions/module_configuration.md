@@ -89,3 +89,22 @@ and then run
 
 
 
+### 7. At receiver
+
+`pip install ffmpeg-python`
+
+for mmpeg:
+
+``` bash
+sudo nano /etc/.bash
+export DBUS_FATAL_WARNINGS=0
+unset XMODIFIERS
+```
+
+Intall jtop:
+
+```bash
+sudo -H pip3 install jetson-stats
+sudo jtop
+```
+

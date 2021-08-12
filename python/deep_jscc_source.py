@@ -355,6 +355,7 @@ class deep_jscc_source(gr.sync_block):
                 first = True
             else:
                 pass
+            bw_policy = bw_policy.item()  #numpy int 64 tp python int
                 #raise 'something went wrong with the indexing'
 
 	        # proportion of frames k1:k2:k3:k4 = lengths[1]:lengths[2]:length[3]:length[4]

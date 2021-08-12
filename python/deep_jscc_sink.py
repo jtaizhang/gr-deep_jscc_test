@@ -215,6 +215,7 @@ class deep_jscc_sink(gr.sync_block):
         self.max_tensor_channels = 240                  # divided by 2 because real part + imaginary part of 
         self.total_bw = self.bw_per_gop * (self.n_gops + 1)     # total bandwidth = individual bandwidth * number of gops
         self.gop_IQ = []
+        self.gop_bw_policy = []  
 
         # ffmpeq error: export DBUS_FATAL_WARNINGS=0 https://bugs.launchpad.net/ubuntu/+source/libsdl2/+bug/1775067
         # unset XMODIFIERS

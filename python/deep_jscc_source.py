@@ -205,7 +205,8 @@ class deep_jscc_source(gr.sync_block):
         self.curr_codes = None                                  # 
         self.bw_per_gop = 240 * 15 * 20 // 2                    # divided by 2 because real part + imaginary part of 
         self.total_bw = self.bw_per_gop * (self.n_gops + 1)     # total bandwidth = individual bandwidth * number of gops
-
+        self.bw_policy = 0
+        
     def get_bw_set(self):
         bw_set = [1] * self.bw_size + [0] * (self.gop_size - 2)             # 
         bw_set = perms_without_reps(bw_set)                                 # 
@@ -239,7 +240,7 @@ class deep_jscc_source(gr.sync_block):
             init_code = self.key_encoder.run((init_frame, self.snr))[0]
             codes[0] = init_code.reshape(-1, 2)                         # Because real+img?
         else:
-            codes[0] = self.prev_last.reshape(-1, 2)                    # what is prev_last
+            codes[0] = self.prev_last.reshape(-1, 2)                    
 
         interp_inputs = [None] * self.gop_size
         interp_inputs[0] = gop[0]
@@ -325,7 +326,7 @@ class deep_jscc_source(gr.sync_block):
                 first = True
                 self.gop_idx = 0
                 curr_gop = self.get_gop(self.gop_idx)
-                self.curr_codes, bw_policy = self.forward(curr_gop, True) # gather a new gop     
+                self.curr_codes, self.bw_policy = self.forward(curr_gop, True) # gather a new gop     
             else:
                 first = False
             
@@ -346,16 +347,17 @@ class deep_jscc_source(gr.sync_block):
 
             if new_gop & self.gop_idx > 0 & self.gop_idx < self.n_gops:
                 curr_gop = self.get_gop(self.gop_idx)
-                self.curr_codes, bw_policy = self.forward(curr_gop, False)  # gather a new gop
+                self.curr_codes, self.bw_policy = self.forward(curr_gop, False)  # gather a new gop
                 first = False
             elif self.gop_idx == self.n_gops:           # last gop is passed
                 self.gop_idx = 0                        #
                 curr_gop = self.get_gop(self.gop_idx)
-                self.curr_codes, bw_policy = self.forward(curr_gop, True) # gather a new gop
+                self.curr_codes, self.bw_policy = self.forward(curr_gop, True) # gather a new gop
                 first = True
             else:
                 pass
-            bw_policy = bw_policy.item()  #numpy int 64 tp python int
+            #if bw_policy > 0:
+            bw_policy_int = int(self.bw_policy) # np.int64 to python int
                 #raise 'something went wrong with the indexing'
 
 	        # proportion of frames k1:k2:k3:k4 = lengths[1]:lengths[2]:length[3]:length[4]
@@ -376,13 +378,17 @@ class deep_jscc_source(gr.sync_block):
                 self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('first'), pmt.from_bool(first)) 
                 self.add_item_tag(1, payload_idx + self.nitems_written(1), pmt.intern('first'), pmt.from_bool(first))
 
-                self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('bw_policy'), pmt.from_long(bw_policy))
-                self.add_item_tag(1, payload_idx + self.nitems_written(0), pmt.intern('bw_policy'), pmt.from_long(bw_policy))
+                self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('bw_policy'), pmt.from_long(bw_policy_int))
+                self.add_item_tag(1, payload_idx + self.nitems_written(0), pmt.intern('bw_policy'), pmt.from_long(bw_policy_int))
 
                 self.running_idx = 0
 
 	        # codes.size = [;,2]?
-            symbol = self.curr_codes[self.curr_codeword][self.pair_idx, 0] + self.curr_codes[self.curr_codeword][self.pair_idx, 1]*1j
+            try:
+                symbol = self.curr_codes[self.curr_codeword][self.pair_idx, 0] + self.curr_codes[self.curr_codeword][self.pair_idx, 1]*1j
+            except:
+                print("Error in symbol assembling.\n length of self.curr_codes is {}, length of self.curr_codes[0] is {}\n pair_idx is {}, curr_codeword is {}, running idx is {}, first is {}, new_gop is {}, bw_policy is {} \n" 
+                    .format(len(self.curr_codes), len(self.curr_codes[0]), self.pair_idx, self.curr_codeword, self.running_idx, first , new_gop, bw_policy_int))
             payload_out[payload_idx] = symbol
             byte_out[payload_idx] = np.uint8(7)
 

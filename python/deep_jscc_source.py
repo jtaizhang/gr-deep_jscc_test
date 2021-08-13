@@ -238,9 +238,7 @@ class deep_jscc_source(gr.sync_block):
             init_frame = gop[0]
             # print(init_frame.dtype())		#dtype = float32
             init_code = self.key_encoder.run((init_frame, self.snr))[0]
-            codes[0] = init_code.reshape(-1, 2)                         # Because real+img?
-        else:
-            codes[0] = self.prev_last.reshape(-1, 2)                    
+            codes[0] = init_code.reshape(-1, 2)                         # Because real+img?                  
 
         interp_inputs = [None] * self.gop_size
         interp_inputs[0] = gop[0]
@@ -275,7 +273,6 @@ class deep_jscc_source(gr.sync_block):
         last_code = self.key_encoder.run((last, self.snr))[0]
         last_code = last_code[:, :bw_alloc[0]]
         codes[-1] = last_code.reshape(-1, 2)
-        self.prev_last = last_code
 
         for pred_idx in [2, 1, 3]:
             if pred_idx == 2:
@@ -287,12 +284,15 @@ class deep_jscc_source(gr.sync_block):
             interp_code = self.interp_encoder.run((interp_input, self.snr))[0] # (1, 240, 15, 20)
             interp_code = interp_code[:, :bw_alloc[pred_idx]]			# (1, 240-bw_alloc , 15 ,20)
             codes[pred_idx] = interp_code.reshape(-1, 2)
-
+        if not first:
+            codes = codes[1:]
+        if bw_policy == -1:
+            print("output of bw_allocator is". format(self.bw_allocator.run((bw_state, self.snr))[0]))
         return codes, bw_policy
 
     def get_gop(self, gop_idx):
         start_frame = int(gop_idx * 4)
-	    # CAP_PROP_POS_FRAMES: 0-based index of the frame to be decoded/captured next.
+            # CAP_PROP_POS_FRAMES: 0-based index of the frame to be decoded/captured next.
         self.video_file.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
         # frames = np.array([])
         frames = []
@@ -326,41 +326,51 @@ class deep_jscc_source(gr.sync_block):
                 first = True
                 self.gop_idx = 0
                 curr_gop = self.get_gop(self.gop_idx)
-                self.curr_codes, self.bw_policy = self.forward(curr_gop, True) # gather a new gop     
+                self.curr_codes, self.bw_policy = self.forward(curr_gop, True) # gather a new gop  
+                print("first gop")   
             else:
                 first = False
+                # print("another loop of work")
             
             # if last pair of symbol is transmitted, new code number  
             if self.pair_idx == (self.curr_codes[self.curr_codeword].shape[0]):
+                # print("codewords limitation = {}" .format(self.curr_codes[self.curr_codeword].shape[0]))
                 self.curr_codeword += 1
                 self.pair_idx = 0
+                print("next codeword, current codeword = {}" .format(self.curr_codeword))
+                
 
             # if last code is transmiited(4)
-            if self.curr_codeword == 0 & self.pair_idx == 0:
+            if self.curr_codeword == 0 and self.pair_idx == 0:
                 new_gop = True
+                print("current codeword = {}, new gop index = {}, pair index = {}" .format(self.curr_codeword, self.gop_idx, self.pair_idx))
             elif self.curr_codeword == (len(self.curr_codes)):
                 self.gop_idx += 1  
                 self.curr_codeword = 0
                 new_gop = True
+                print("new gop, because codeword = 5")
             else:
                 new_gop = False
 
-            if new_gop & self.gop_idx > 0 & self.gop_idx < self.n_gops:
+            if new_gop and 0 < self.gop_idx < self.n_gops:
                 curr_gop = self.get_gop(self.gop_idx)
                 self.curr_codes, self.bw_policy = self.forward(curr_gop, False)  # gather a new gop
                 first = False
+                print("new gop, bw_policy = {}, gop index = {}, pair index = {}" .format(self.bw_policy, self.gop_idx, self.pair_idx))
             elif self.gop_idx == self.n_gops:           # last gop is passed
                 self.gop_idx = 0                        #
                 curr_gop = self.get_gop(self.gop_idx)
                 self.curr_codes, self.bw_policy = self.forward(curr_gop, True) # gather a new gop
                 first = True
-            else:
-                pass
+                print("loop completed, gop index = {}" .format(self.gop_idx))
+            #else:
+            #    pass
+            #    print("pass")
             #if bw_policy > 0:
             bw_policy_int = int(self.bw_policy) # np.int64 to python int
                 #raise 'something went wrong with the indexing'
 
-	        # proportion of frames k1:k2:k3:k4 = lengths[1]:lengths[2]:length[3]:length[4]
+                # proportion of frames k1:k2:k3:k4 = lengths[1]:lengths[2]:length[3]:length[4]
             #for frame_index in range(self.gop_size - 1):	                                        # -1 because the first frame is not transmitted
             #    pmt.s32vector_set(frame_lengths, frame_index, self.curr_code_lengths[frame_index + 1])	# +1 to map from [0:3] to [1:4]
             # the following frame_code_length takes at least 24 bit to store
@@ -368,7 +378,7 @@ class deep_jscc_source(gr.sync_block):
             #    frame_code_length += self.bw_allocation[frame_index] * (base ** (3 - frame_index))
             
             if self.running_idx % self.packet_len == 0:
-		        # add_item_tag(which_output, abs_offset, key, value)
+                        # add_item_tag(which_output, abs_offset, key, value)
                 self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('packet_len'), pmt.from_long(self.packet_len))
                 self.add_item_tag(1, payload_idx + self.nitems_written(1), pmt.intern('packet_len'), pmt.from_long(self.packet_len))
 
@@ -382,10 +392,11 @@ class deep_jscc_source(gr.sync_block):
                 self.add_item_tag(1, payload_idx + self.nitems_written(0), pmt.intern('bw_policy'), pmt.from_long(bw_policy_int))
 
                 self.running_idx = 0
-
-	        # codes.size = [;,2]?
+                # print("another packet")
+                # codes.size = [;,2]?
             try:
                 symbol = self.curr_codes[self.curr_codeword][self.pair_idx, 0] + self.curr_codes[self.curr_codeword][self.pair_idx, 1]*1j
+                # print("symbol assigned")
             except:
                 print("Error in symbol assembling.\n length of self.curr_codes is {}, length of self.curr_codes[0] is {}\n pair_idx is {}, curr_codeword is {}, running idx is {}, first is {}, new_gop is {}, bw_policy is {} \n" 
                     .format(len(self.curr_codes), len(self.curr_codes[0]), self.pair_idx, self.curr_codeword, self.running_idx, first , new_gop, bw_policy_int))

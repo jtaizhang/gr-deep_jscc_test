@@ -33,7 +33,7 @@ import onnx
 import onnx_tensorrt.backend as backend
 from gnuradio import gr
 import pmt
-
+from numpy import linalg as LA
 
 class GaussianSmoothing(nn.Module):
     """
@@ -396,6 +396,7 @@ class deep_jscc_source(gr.sync_block):
                 # codes.size = [;,2]?
             try:
                 symbol = self.curr_codes[self.curr_codeword][self.pair_idx, 0] + self.curr_codes[self.curr_codeword][self.pair_idx, 1]*1j
+                symbol = symbol / LA.norm(symbol.reshape(-1), ord = 2)
                 # print("symbol assigned")
             except:
                 print("Error in symbol assembling.\n length of self.curr_codes is {}, length of self.curr_codes[0] is {}\n pair_idx is {}, curr_codeword is {}, running idx is {}, first is {}, new_gop is {}, bw_policy is {} \n" 

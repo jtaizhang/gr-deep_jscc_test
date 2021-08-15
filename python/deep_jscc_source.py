@@ -232,6 +232,7 @@ class deep_jscc_source(gr.sync_block):
         return nets
 
     def forward(self, gop, first):
+        code_list = np.array([])
         codes = [None] * self.gop_size
         # gop = np.array(gop, dtype = gop.dtype, order = 'C')		# Convert the frame to row-major order
         if first:
@@ -287,7 +288,19 @@ class deep_jscc_source(gr.sync_block):
         if not first:
             codes = codes[1:]
         if bw_policy == -1:
-            print("output of bw_allocator is". format(self.bw_allocator.run((bw_state, self.snr))[0]))
+            print("output of bw_allocator is {}". format(self.bw_allocator.run((bw_state, self.snr))[0]))
+        
+        # Normalization
+        # for code_num in range(len(codes)):
+        #     code_list = np.concatenate((code_list, codes[code_num]), axis = None)
+        # code_list_norm = LA.norm(code_list, ord = 2).astype(np.int32) / len(code_list) * 2
+            
+        # if code_list_norm != code_list_norm: # in case of NaN
+        #     for code_num in range(len(codes)):
+        #         codes[code_num] = [symbol / LA.norm(codes[code_num].reshape(-1) * codes[code_num].shape[0], ord = 2) for symbol in codes[code_num]]
+        # else:
+        #     codes = [code/code_list_norm for code in codes]
+
         return codes, bw_policy
 
     def get_gop(self, gop_idx):
@@ -376,17 +389,26 @@ class deep_jscc_source(gr.sync_block):
             # the following frame_code_length takes at least 24 bit to store
             #for frame_index in range(len(self.bw_allocation)):
             #    frame_code_length += self.bw_allocation[frame_index] * (base ** (3 - frame_index))
-            
+            if first:
+                first_num = 1
+            else:
+                first_num = 0
+
+            if new_gop:
+                new_gop_num = 1
+            else:
+                new_gop_num = 0
+
             if self.running_idx % self.packet_len == 0:
                         # add_item_tag(which_output, abs_offset, key, value)
                 self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('packet_len'), pmt.from_long(self.packet_len))
                 self.add_item_tag(1, payload_idx + self.nitems_written(1), pmt.intern('packet_len'), pmt.from_long(self.packet_len))
 
-                self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('new_gop'), pmt.from_bool(new_gop)) 
-                self.add_item_tag(1, payload_idx + self.nitems_written(1), pmt.intern('new_gop'), pmt.from_bool(new_gop))
+                self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('new_gop'), pmt.from_long(new_gop_num)) 
+                self.add_item_tag(1, payload_idx + self.nitems_written(1), pmt.intern('new_gop'), pmt.from_long(new_gop_num))
 
-                self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('first'), pmt.from_bool(first)) 
-                self.add_item_tag(1, payload_idx + self.nitems_written(1), pmt.intern('first'), pmt.from_bool(first))
+                self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('first'), pmt.from_long(first_num)) 
+                self.add_item_tag(1, payload_idx + self.nitems_written(1), pmt.intern('first'), pmt.from_long(first_num))
 
                 self.add_item_tag(0, payload_idx + self.nitems_written(0), pmt.intern('bw_policy'), pmt.from_long(bw_policy_int))
                 self.add_item_tag(1, payload_idx + self.nitems_written(0), pmt.intern('bw_policy'), pmt.from_long(bw_policy_int))
@@ -396,7 +418,7 @@ class deep_jscc_source(gr.sync_block):
                 # codes.size = [;,2]?
             try:
                 symbol = self.curr_codes[self.curr_codeword][self.pair_idx, 0] + self.curr_codes[self.curr_codeword][self.pair_idx, 1]*1j
-                symbol = symbol / LA.norm(symbol.reshape(-1), ord = 2)
+                #symbol = symbol / LA.norm(symbol.reshape(-1), ord = 2)
                 # print("symbol assigned")
             except:
                 print("Error in symbol assembling.\n length of self.curr_codes is {}, length of self.curr_codes[0] is {}\n pair_idx is {}, curr_codeword is {}, running idx is {}, first is {}, new_gop is {}, bw_policy is {} \n" 

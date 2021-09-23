@@ -1,4 +1,6 @@
-# Deep-JSCC video transmission modules on GNU Radio
+# Deep-JSCC video transmission modules on GNU Radio 
+
+Based on the work of r0ymanesco
 
 C++ blocks:
 

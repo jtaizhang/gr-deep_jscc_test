@@ -24,3 +24,6 @@ VAE models not included
 
 * [GNU Radio 3.8](https://jtaizhang.github.io/project/gnuinstall)
 * onnx_tensorrt 7.1
+
+## [OOT modules instructions](https://wiki.gnuradio.org/index.php/OutOfTreeModules)
+
